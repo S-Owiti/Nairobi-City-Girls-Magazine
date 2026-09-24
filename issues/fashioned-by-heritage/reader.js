@@ -1,7 +1,8 @@
 const photos = (label, sub='', extra='') => `<div class="photo ${extra}" role="img" aria-label="Photo placeholder: ${label}"><div><strong>${label}</strong>${sub ? `<em>${sub}</em>` : ''}</div></div>`;
 const heading = (title) => `<header class="section-title"><h2>${title}</h2><span class="barcode" aria-hidden="true"></span></header>`;
-const band = () => `<div class="slash" aria-hidden="true"></div>`;
-const footer = (number) => `<footer class="folio"><span><b>${number}</b> &nbsp; NAIROBI CITY GIRLS MAGAZINE <i>|</i> MARCH 2026</span><span class="qr-placeholder" title="Final QR code pending a confirmed link">QR<br>LINK</span></footer>`;
+const band = () => `<div class="section-divider" aria-hidden="true">✳</div>`;
+const footer = (number) =>
+  `<footer class="folio"><span>${String(number - 15).padStart(2, '0')} · NCG MAGAZINE</span></footer>`;
 const pages = [
   `<article class="page opener" aria-label="Page 16: Street-Style Showdown">
     <div class="opening-photo">${photos('NAIROBI CITY GIRL','UPCYCLED DENIM BUBBLE SKIRT')}</div>${band()}
@@ -18,7 +19,9 @@ function isSingle(){return window.matchMedia('(max-width: 780px)').matches}
 function positions(){return isSingle()?[0,1,2,3,4,5,6]:[0,1,3,5]}
 function currentPosition(){return positions().reduce((last,p)=>p<=start?p:last,0)}
 function closeContents(){contents.hidden=true;contentsToggle.setAttribute('aria-expanded','false')}
-function render(){const place=currentPosition();start=place;spread.classList.toggle('single',isSingle()||place===0);spread.innerHTML=pages[place]+(!isSingle()&&place>0&&place+1<pages.length?pages[place+1]:'');counter.textContent=place===0||isSingle()?`${place+16} / 22`:`${place+16}–${place+17} / 22`;progress.style.width=`${((place+(isSingle()||place===0?1:2))/pages.length)*100}%`;const ps=positions();const idx=ps.indexOf(place);document.querySelectorAll('#prev,#edge-prev').forEach(b=>b.disabled=idx===0);document.querySelectorAll('#next,#edge-next').forEach(b=>b.disabled=idx===ps.length-1)}
+function render(){const place=currentPosition();start=place;spread.classList.toggle('single',isSingle()||place===0);spread.innerHTML=pages[place]+(!isSingle()&&place>0&&place+1<pages.length?pages[place+1]:'');counter.textContent = isSingle() || place === 0
+  ? `${String(place + 1).padStart(2, '0')} / 07`
+  : `${String(place + 1).padStart(2, '0')}–${String(place + 2).padStart(2, '0')} / 07`;progress.style.width=`${((place+(isSingle()||place===0?1:2))/pages.length)*100}%`;const ps=positions();const idx=ps.indexOf(place);document.querySelectorAll('#prev,#edge-prev').forEach(b=>b.disabled=idx===0);document.querySelectorAll('#next,#edge-next').forEach(b=>b.disabled=idx===ps.length-1)}
 function turn(delta){
   if(locked)return;
   const ps=positions();const old=currentPosition();const targetIndex=ps.indexOf(old)+delta;
@@ -41,3 +44,17 @@ document.querySelectorAll('#prev,#edge-prev').forEach(b=>b.onclick=()=>turn(-1))
 contentsToggle.onclick=()=>{contents.hidden=!contents.hidden;contentsToggle.setAttribute('aria-expanded',String(!contents.hidden))};document.querySelector('#contents-close').onclick=closeContents;contents.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>{let wanted=Number(b.dataset.page);start=isSingle()?wanted:positions().reduce((p,n)=>n<=wanted?n:p,0);render();closeContents()});
 document.querySelector('#fullscreen').onclick=()=>{if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen?.()};
 document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')turn(1);if(e.key==='ArrowLeft')turn(-1);if(e.key==='Escape')closeContents()});window.addEventListener('resize',()=>{if(!locked)render()});render();
+.section-divider {
+  flex: none;
+  margin: 0.65rem 0;
+  border-top: 1px solid #9f4218;
+  color: #9f4218;
+  font-size: 0.75rem;
+  line-height: 0;
+  text-align: center;
+}
+
+.section-divider::first-letter {
+  background: var(--orange);
+  padding: 0 0.7rem;
+}
